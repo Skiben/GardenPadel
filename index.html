@@ -1,295 +1,1206 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Garden Padel — Turniej Americano</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎾</text></svg>">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#003333;font-family:'Segoe UI',-apple-system,sans-serif;color:#e8f0ea}
-input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-input[type=number]{-moz-appearance:textfield}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a7a6a;border-radius:3px}
-.ball:hover{background:#94b487!important;border-color:#94b487!important;color:#003333!important}
-.team-click:hover{border-color:#2a9a86!important;background:rgba(148,180,135,0.08)!important}
-@media(max-width:800px){.main-grid{grid-template-columns:1fr!important}}
-</style>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Padel — Turniej Americano</title>
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎾</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            transition: background 0.3s, color 0.3s
+        }
+
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            border-radius: 3px
+        }
+
+        @media (max-width: 800px) {
+            .main-grid {
+                grid-template-columns:1fr !important
+            }
+        }
+    </style>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin
+            src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const {useState,useEffect,useRef}=React;
-const SK="gardenpadel-americano-v2";
-const P={dark:"#003333",mid:"#004d40",card:"#00594a",border:"#1a7a6a",borderHi:"#2a9a86",olive:"#94b487",oliveDark:"#7d9a6e",text:"#e8f0ea",dim:"#7aaa96"};
-function gid(){return Math.random().toString(36).slice(2,10)}
-function dc(o){return JSON.parse(JSON.stringify(o))}
-function saveD(d){try{localStorage.setItem(SK,JSON.stringify(d))}catch(e){}}
-function loadD(){try{const d=localStorage.getItem(SK);return d?JSON.parse(d):null}catch(e){return null}}
-function clearD(){try{localStorage.removeItem(SK)}catch(e){}}
+    const {useState, useEffect, useRef} = React;
+    const SK = "gardenpadel-americano-v2";
+    const TK = "gardenpadel-theme";
 
-// ─── Logo ──────────────────────────────────────────────────────────────
-function GardenLogo({width=220}){
-  return React.createElement("svg",{width,viewBox:"0 0 300 300",xmlns:"http://www.w3.org/2000/svg"},
-    React.createElement("g",null,React.createElement("g",null,React.createElement("g",null,
-      React.createElement("path",{fill:"#94b487",d:"M178.09,117.27c0,15.03-11.87,27.34-26.73,28.05v-2.73c13.36-.71,24-11.8,24-25.32s-11.38-25.36-25.36-25.36-25.36,11.37-25.36,25.36,10.65,24.61,24,25.32v2.73c-14.86-.71-26.73-13.02-26.73-28.05s12.6-28.09,28.09-28.09,28.09,12.6,28.09,28.09Z"}),
-      React.createElement("rect",{fill:"#fff",x:"148.64",y:"117.25",width:"2.72",height:"37.43"})),
-    React.createElement("g",null,
-      React.createElement("path",{fill:"#fff",d:"M72.07,169.95c1.08-1.03,2.37-1.84,3.82-2.4,1.46-.57,3.07-.85,4.79-.85,1.62,0,3.14.24,4.51.71,1.36.46,2.63,1.26,3.79,2.36l.31.29,1.84-1.91-.29-.3c-1.24-1.27-2.76-2.23-4.52-2.86-1.74-.63-3.65-.95-5.68-.95-2.14,0-4.12.35-5.91,1.04-1.78.69-3.37,1.68-4.71,2.94-1.35,1.26-2.4,2.76-3.12,4.46-.73,1.69-1.09,3.58-1.09,5.59s.37,3.9,1.09,5.59c.73,1.7,1.77,3.19,3.1,4.45,1.33,1.26,2.92,2.25,4.71,2.94,1.79.69,3.77,1.04,5.88,1.04,1.92,0,3.78-.3,5.53-.88,1.76-.59,3.29-1.49,4.57-2.69l.23-.21-4.59-9.8-2.53,1.13,3.71,7.92c-.75.5-1.55.89-2.37,1.17-1.4.47-2.91.71-4.48.71-1.72,0-3.33-.29-4.79-.85-1.46-.56-2.74-1.37-3.82-2.4-1.08-1.03-1.92-2.25-2.51-3.62-.59-1.37-.89-2.89-.89-4.51s.3-3.14.89-4.51c.59-1.37,1.43-2.59,2.51-3.62Z"}),
-      React.createElement("polygon",{fill:"#fff",points:"106.98 164.23 93.94 191.91 97.05 191.91 100.56 184.36 108.68 184.36 108.68 181.86 101.72 181.86 108.24 167.82 119.46 191.91 122.57 191.91 109.53 164.23 106.98 164.23"}),
-      React.createElement("path",{fill:"#fff",d:"M146.93,178.75c.93-1.41,1.4-3.11,1.4-5.05,0-2.98-1.04-5.34-3.1-7-2.03-1.64-4.86-2.47-8.4-2.47h-10.28v27.69h2.86v-25.07h7.42c2.84,0,5.01.6,6.46,1.8,1.44,1.19,2.14,2.85,2.14,5.06s-.7,3.83-2.15,5.04c-.94.79-2.2,1.33-3.74,1.6-.66.12-1.36.19-2.06.21l-.81.02,8.2,11.35h3.33l-6.77-9.37c.53-.15,1.02-.33,1.49-.54,1.72-.76,3.06-1.86,3.99-3.26Z"}),
-      React.createElement("path",{fill:"#fff",d:"M172.67,166c-2.25-1.18-4.89-1.77-7.85-1.77h-11.3v27.69h11.3c2.96,0,5.6-.6,7.85-1.77,2.26-1.18,4.04-2.83,5.29-4.91,1.25-2.08,1.89-4.49,1.89-7.16s-.63-5.08-1.89-7.16c-1.25-2.08-3.03-3.73-5.29-4.91ZM176.99,178.07c0,2.18-.51,4.14-1.51,5.82-1,1.67-2.44,3.01-4.27,3.96-1.84.96-4.04,1.45-6.55,1.45h-8.29v-22.45h8.29c2.51,0,4.71.49,6.55,1.45,1.83.96,3.26,2.29,4.27,3.96,1,1.68,1.51,3.63,1.51,5.82Z"}),
-      React.createElement("g",null,React.createElement("polygon",{fill:"#fff",points:"187.89 166.85 204.26 166.85 204.26 164.23 185.03 164.23 185.03 191.91 204.84 191.91 204.84 189.29 187.89 189.29 187.89 166.85"}),React.createElement("rect",{fill:"#fff",x:"192.84",y:"176.57",width:"9.69",height:"2.58"})),
-      React.createElement("polygon",{fill:"#fff",points:"231.33 164.23 231.33 186.73 213.28 164.23 210.96 164.23 210.96 191.91 213.82 191.91 213.82 169.41 231.91 191.91 234.19 191.91 234.19 164.23 231.33 164.23"}))),
-    React.createElement("g",null,
-      React.createElement("path",{fill:"#fff",d:"M115.42,201.86c-.59-.26-1.31-.39-2.13-.39h-3.87v9.36h1.95v-2.63h1.93c.82,0,1.54-.14,2.13-.41.6-.27,1.06-.67,1.39-1.16.32-.5.49-1.1.49-1.79s-.16-1.31-.49-1.81c-.32-.5-.79-.89-1.39-1.16ZM115.34,204.83c0,.54-.17.94-.52,1.23h0c-.35.3-.89.44-1.6.44h-1.85v-3.36h1.85c.71,0,1.25.15,1.6.44.35.29.52.7.52,1.23Z"}),
-      React.createElement("path",{fill:"#fff",d:"M130.23,201.46l-4.21,9.36h2.01l.9-2.11h4.38l.9,2.11h2.06l-4.22-9.36h-1.83ZM132.64,207.13h-3.03l1.52-3.53,1.51,3.53Z"}),
-      React.createElement("path",{fill:"#fff",d:"M152.98,202.04c-.76-.38-1.65-.58-2.64-.58h-4.12v9.36h4.12c.99,0,1.87-.19,2.64-.58.77-.39,1.37-.94,1.8-1.64.43-.7.64-1.53.64-2.46s-.22-1.76-.64-2.46c-.43-.7-1.03-1.25-1.8-1.64ZM153.47,206.14c0,.6-.14,1.13-.4,1.57-.27.45-.64.8-1.12,1.04-.48.25-1.05.38-1.72.38h-2.07v-5.99h2.07c.66,0,1.24.13,1.72.38.48.25.85.6,1.12,1.03.27.44.4.97.4,1.58Z"}),
-      React.createElement("polygon",{fill:"#fff",points:"168.01 206.89 172.4 206.89 172.4 205.25 168.01 205.25 168.01 203.15 172.96 203.15 172.96 201.46 166.06 201.46 166.06 210.82 173.14 210.82 173.14 209.13 168.01 209.13 168.01 206.89"}),
-      React.createElement("polygon",{fill:"#fff",points:"185.82 209.13 185.82 201.46 183.87 201.46 183.87 210.82 190.58 210.82 190.58 209.13 185.82 209.13"}))));
-}
-function LogoSmall({width=36}){return React.createElement("svg",{width,viewBox:"60 85 180 75",xmlns:"http://www.w3.org/2000/svg"},React.createElement("path",{fill:"#94b487",d:"M178.09,117.27c0,15.03-11.87,27.34-26.73,28.05v-2.73c13.36-.71,24-11.8,24-25.32s-11.38-25.36-25.36-25.36-25.36,11.37-25.36,25.36,10.65,24.61,24,25.32v2.73c-14.86-.71-26.73-13.02-26.73-28.05s12.6-28.09,28.09-28.09,28.09,12.6,28.09,28.09Z"}),React.createElement("rect",{fill:"#fff",x:"148.64",y:"117.25",width:"2.72",height:"37.43"}));}
-function IconPlus(){return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>}
-function IconX(){return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>}
-function IconCheck(){return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6 9 17l-5-5"/></svg>}
-function IconPlay(){return <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>}
+    // ─── Theme palettes ────────────────────────────────────────────────────
+    const DARK = {
+        dark: "#003333",
+        mid: "#004d40",
+        card: "#00594a",
+        border: "#1a7a6a",
+        borderHi: "#2a9a86",
+        olive: "#94b487",
+        oliveDark: "#7d9a6e",
+        text: "#e8f0ea",
+        dim: "#7aaa96",
+        logoBg: "none",
+        logoText: "#fff",
+        logoTree: "#94b487",
+        winGrad: "linear-gradient(135deg,#004d40 0%,#003d20 100%)",
+        ballBg: "#00594a",
+        ballBorder: "#1a7a6a",
+        ballText: "#fff",
+        ballHoverBg: "#94b487",
+        ballHoverBorder: "#94b487",
+        ballHoverText: "#003333",
+        modalOverlay: "rgba(0,20,20,0.8)",
+        teamWinBg: "rgba(148,180,135,0.1)",
+        teamWinBorder: "#94b48788",
+        teamLoseBg: "rgba(192,57,43,0.05)",
+        teamLoseBorder: "#c0392b44",
+        teamDrawBg: "rgba(212,168,67,0.05)",
+        teamDrawBorder: "#d4a84366",
+        byeBg: "rgba(148,180,135,0.06)",
+        byeBorder: "rgba(148,180,135,0.27)",
+        wdlWin: "#94b487",
+        wdlDraw: "#7aaa96",
+        wdlLose: "#d46b5b",
+        err: "#e07060",
+        errBg: "#555",
+        errText: "#999",
+        scrollThumb: "#1a7a6a",
+    };
+    const LIGHT = {
+        dark: "#f5f7f4",
+        mid: "#ffffff",
+        card: "#eef2ec",
+        border: "#c8d5c0",
+        borderHi: "#94b487",
+        olive: "#4a7a3a",
+        oliveDark: "#3a6630",
+        text: "#1a2e1a",
+        dim: "#5c7a56",
+        logoBg: "none",
+        logoText: "#003333",
+        logoTree: "#94b487",
+        winGrad: "linear-gradient(135deg,#eef2ec 0%,#dde8d6 100%)",
+        ballBg: "#eef2ec",
+        ballBorder: "#c8d5c0",
+        ballText: "#1a2e1a",
+        ballHoverBg: "#4a7a3a",
+        ballHoverBorder: "#4a7a3a",
+        ballHoverText: "#fff",
+        modalOverlay: "rgba(0,0,0,0.4)",
+        teamWinBg: "rgba(74,122,58,0.08)",
+        teamWinBorder: "#4a7a3a66",
+        teamLoseBg: "rgba(192,57,43,0.06)",
+        teamLoseBorder: "#c0392b44",
+        teamDrawBg: "rgba(180,160,60,0.06)",
+        teamDrawBorder: "#b4a03c44",
+        byeBg: "rgba(74,122,58,0.05)",
+        byeBorder: "rgba(74,122,58,0.2)",
+        wdlWin: "#3a7a2a",
+        wdlDraw: "#888",
+        wdlLose: "#c0392b",
+        err: "#c0392b",
+        errBg: "#ccc",
+        errText: "#888",
+        scrollThumb: "#c8d5c0",
+    };
 
-// ─── ALGORITHM (retry-based, guarantees optimal pairing) ───────────────
-function generateRounds(players, courts) {
-  const n = players.length;
-  const pk = (a,b) => a<b ? a+"|"+b : b+"|"+a;
-  const activeCourts = Math.min(courts.length, Math.floor(n/4));
-  const activePlayerCount = activeCourts * 4;
-  const pairsPerRound = activeCourts * 2;
-  const allPairKeys = [];
-  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) allPairKeys.push(pk(players[i].id,players[j].id));
-  const maxNeededRounds = pairsPerRound>0 ? Math.ceil(allPairKeys.length/pairsPerRound) : 1;
-
-  let bestResult=null, bestMaxPartner=Infinity;
-  const totalAttempts = n<=12?15:8;
-
-  for(let fa=0;fa<totalAttempts;fa++){
-    const pc=new Map(), oc=new Map(), bc=new Map(), lbr=new Map();
-    players.forEach(p=>{bc.set(p.id,0);lbr.set(p.id,-999)});
-    const gpc=(a,b)=>pc.get(pk(a,b))||0;
-    const goc=(a,b)=>oc.get(pk(a,b))||0;
-    const ipc=(a,b)=>pc.set(pk(a,b),gpc(a,b)+1);
-    const ioc=(a,b)=>oc.set(pk(a,b),goc(a,b)+1);
-    const rounds=[];
-
-    for(let r=0;r<maxNeededRounds+5;r++){
-      const sorted=[...players].sort((a,b)=>{
-        const aC=lbr.get(a.id)===r-1?1:0, bC=lbr.get(b.id)===r-1?1:0;
-        if(aC!==bC) return bC-aC;
-        const aB=bc.get(a.id),bB=bc.get(b.id);
-        if(aB!==bB) return bB-aB;
-        return Math.random()-0.5;
-      });
-      const ap=sorted.slice(0,activePlayerCount);
-      const bp=sorted.slice(activePlayerCount);
-      bp.forEach(p=>{bc.set(p.id,bc.get(p.id)+1);lbr.set(p.id,r)});
-
-      let bestM=null, bestS=Infinity;
-      const att=n<=12?2000:800;
-      for(let a=0;a<att;a++){
-        const sh=[...ap].sort(()=>Math.random()-0.5);
-        let ts=0; const ms=[];
-        for(let g=0;g<activeCourts;g++){
-          const f=sh.slice(g*4,g*4+4);
-          const sp=[[f[0],f[1],f[2],f[3]],[f[0],f[2],f[1],f[3]],[f[0],f[3],f[1],f[2]]];
-          let bss=Infinity,bt1,bt2;
-          for(const[a,b,c,d] of sp){
-            const ps=gpc(a.id,b.id)+gpc(c.id,d.id);
-            const os=goc(a.id,c.id)+goc(a.id,d.id)+goc(b.id,c.id)+goc(b.id,d.id);
-            const sc=ps*ps*50+os*os;
-            if(sc<bss){bss=sc;bt1=[a,b];bt2=[c,d]}
-          }
-          ts+=bss; ms.push({t1:bt1,t2:bt2,court:courts[g]});
-        }
-        if(ts<bestS){bestS=ts;bestM=ms}
-        if(ts===0)break;
-      }
-      if(!bestM)break;
-      for(const m of bestM){ipc(m.t1[0].id,m.t1[1].id);ipc(m.t2[0].id,m.t2[1].id);for(const a of m.t1)for(const b of m.t2)ioc(a.id,b.id)}
-      rounds.push({id:gid(),number:rounds.length+1,
-        matches:bestM.map(m=>({id:gid(),court:m.court,team1:m.t1.map(p=>({id:p.id,name:p.name})),team2:m.t2.map(p=>({id:p.id,name:p.name})),score1:null,score2:null,completed:false})),
-        byePlayers:bp.map(p=>({id:p.id,name:p.name})),completed:false});
-      if(allPairKeys.every(k=>(pc.get(k)||0)>0))break;
-      if(rounds.length>=maxNeededRounds+3)break;
+    function gid() {
+        return Math.random().toString(36).slice(2, 10)
     }
-    let mx=0; for(const[,c] of pc) if(c>mx) mx=c;
-    if(mx<bestMaxPartner){bestMaxPartner=mx;bestResult=rounds;if(mx<=1)break}
-  }
-  return bestResult||[];
-}
 
-// ─── Score Modal ───────────────────────────────────────────────────────
-function ScoreModal({match,maxPoints,onSubmit,onClose,teamHint}){
-  const sel=teamHint;
-  const balls=Array.from({length:maxPoints+1},(_,i)=>i);
-  const t1n=match.team1.map(p=>p.name).join(" & "), t2n=match.team2.map(p=>p.name).join(" & ");
-  return(
-    <div style={{position:"fixed",inset:0,background:"rgba(0,20,20,0.8)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100,padding:20}} onClick={onClose}>
-      <div style={{background:P.mid,borderRadius:16,border:"1px solid "+P.borderHi,padding:24,maxWidth:480,width:"100%",maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <span style={{fontSize:12,fontWeight:700,color:P.dim,textTransform:"uppercase",letterSpacing:1.5}}>{match.court.name}</span>
-          <button style={{background:"none",border:"none",color:P.dim,cursor:"pointer",padding:4,display:"flex"}} onClick={onClose}><IconX/></button>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
-          <div style={{flex:1,padding:12,borderRadius:10,border:"2px solid "+(sel===1?P.olive:P.border),background:sel===1?"rgba(148,180,135,0.12)":P.card,textAlign:"center",opacity:sel===1?1:0.4}}><span style={{display:"block",fontSize:14,fontWeight:700}}>{t1n}</span></div>
-          <span style={{fontSize:12,color:P.dim,fontWeight:700}}>vs</span>
-          <div style={{flex:1,padding:12,borderRadius:10,border:"2px solid "+(sel===2?P.olive:P.border),background:sel===2?"rgba(148,180,135,0.12)":P.card,textAlign:"center",opacity:sel===2?1:0.4}}><span style={{display:"block",fontSize:14,fontWeight:700}}>{t2n}</span></div>
-        </div>
-        <p style={{fontSize:13,color:P.dim,marginBottom:12}}>Punkty dla <strong style={{color:"#fff"}}>{sel===1?t1n:t2n}</strong>:</p>
-        <div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center"}}>
-          {balls.map(v=><button key={v} className="ball" onClick={()=>onSubmit(sel===1?v:maxPoints-v)} style={{width:46,height:46,borderRadius:"50%",border:"2px solid "+P.border,background:P.card,color:"#fff",fontSize:15,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.1s",fontVariantNumeric:"tabular-nums"}}>{v}</button>)}
-        </div>
-      </div>
-    </div>);
-}
+    function dc(o) {
+        return JSON.parse(JSON.stringify(o))
+    }
 
-// ─── App ───────────────────────────────────────────────────────────────
-function App(){
-  const[phase,setPhase]=useState("loading");
-  const[tournament,setTournament]=useState(null);
-  const[setup,setSetup]=useState({name:"",players:[],courts:[{id:gid(),name:"Kort 1"}],maxPoints:"21",byePoints:"11"});
-  const[npn,setNpn]=useState("");
-  const[modal,setModal]=useState(null);
-  const ref=useRef(null);
-  const nv=v=>{const n=parseInt(v);return isNaN(n)?0:n};
+    function saveD(d) {
+        try {
+            localStorage.setItem(SK, JSON.stringify(d))
+        } catch (e) {
+        }
+    }
 
-  useEffect(()=>{const s=loadD();if(s&&s.phase){if(s.phase==="tournament"||s.phase==="finished"){setTournament(s);setPhase(s.phase)}else{if(s.setupData)setSetup(s.setupData);setPhase("setup")}}else setPhase("setup")},[]);
-  useEffect(()=>{if(phase==="loading")return;if(phase==="setup")saveD({phase:"setup",setupData:setup});else if(tournament)saveD({...tournament,phase})},[phase,setup,tournament]);
+    function loadD() {
+        try {
+            const d = localStorage.getItem(SK);
+            return d ? JSON.parse(d) : null
+        } catch (e) {
+            return null
+        }
+    }
 
-  const addP=()=>{const name=npn.trim();if(!name)return;if(setup.players.some(p=>p.name.toLowerCase()===name.toLowerCase()))return;setSetup(d=>({...d,players:[...d.players,{id:gid(),name}]}));setNpn("");setTimeout(()=>ref.current?.focus(),50)};
-  const playerDup=npn.trim()&&setup.players.some(p=>p.name.toLowerCase()===npn.trim().toLowerCase());
-  const remP=id=>setSetup(d=>({...d,players:d.players.filter(p=>p.id!==id)}));
-  const addC=()=>{const baseName="Kort ";let num=setup.courts.length+1;const existing=setup.courts.map(c=>c.name.toLowerCase());while(existing.includes((baseName+num).toLowerCase()))num++;setSetup(d=>({...d,courts:[...d.courts,{id:gid(),name:baseName+num}]}))};
-  const remC=id=>setSetup(d=>({...d,courts:d.courts.filter(c=>c.id!==id)}));
-  const updC=(id,name)=>setSetup(d=>({...d,courts:d.courts.map(c=>c.id===id?{...c,name}:c)}));
-  const courtDups=setup.courts.map((c,i)=>{const name=c.name.trim().toLowerCase();if(!name)return false;return setup.courts.some((other,j)=>j!==i&&other.name.trim().toLowerCase()===name)});
-  const hasCourtDups=courtDups.some(Boolean);
-  const canStart=setup.players.length>=4&&setup.courts.length>=1&&nv(setup.maxPoints)>0&&!hasCourtDups;
+    function clearD() {
+        try {
+            localStorage.removeItem(SK)
+        } catch (e) {
+        }
+    }
 
-  const startT=()=>{if(!canStart)return;const rounds=generateRounds(setup.players,setup.courts);const mp=nv(setup.maxPoints),bp=nv(setup.byePoints);const t={phase:"tournament",name:setup.name||"Turniej Americano",players:dc(setup.players),courts:dc(setup.courts),maxPoints:mp,byePoints:bp,rounds,scores:{},stats:{},currentRound:0};setup.players.forEach(p=>{t.scores[p.id]=0;t.stats[p.id]={w:0,d:0,l:0}});setTournament(t);setPhase("tournament")};
+    // ─── Logo (colors driven by theme) ────────────────────────────────────
+    function GardenLogo({width = 220, T}) {
+        const tc = T.logoTree, tx = T.logoText;
+        return React.createElement("svg", {width, viewBox: "0 0 300 300", xmlns: "http://www.w3.org/2000/svg"},
+            React.createElement("g", null, React.createElement("g", null, React.createElement("g", null,
+                        React.createElement("path", {
+                            fill: tc,
+                            d: "M178.09,117.27c0,15.03-11.87,27.34-26.73,28.05v-2.73c13.36-.71,24-11.8,24-25.32s-11.38-25.36-25.36-25.36-25.36,11.37-25.36,25.36,10.65,24.61,24,25.32v2.73c-14.86-.71-26.73-13.02-26.73-28.05s12.6-28.09,28.09-28.09,28.09,12.6,28.09,28.09Z"
+                        }),
+                        React.createElement("rect", {fill: tx, x: "148.64", y: "117.25", width: "2.72", height: "37.43"})),
+                    React.createElement("g", null,
+                        React.createElement("path", {
+                            fill: tx,
+                            d: "M72.07,169.95c1.08-1.03,2.37-1.84,3.82-2.4,1.46-.57,3.07-.85,4.79-.85,1.62,0,3.14.24,4.51.71,1.36.46,2.63,1.26,3.79,2.36l.31.29,1.84-1.91-.29-.3c-1.24-1.27-2.76-2.23-4.52-2.86-1.74-.63-3.65-.95-5.68-.95-2.14,0-4.12.35-5.91,1.04-1.78.69-3.37,1.68-4.71,2.94-1.35,1.26-2.4,2.76-3.12,4.46-.73,1.69-1.09,3.58-1.09,5.59s.37,3.9,1.09,5.59c.73,1.7,1.77,3.19,3.1,4.45,1.33,1.26,2.92,2.25,4.71,2.94,1.79.69,3.77,1.04,5.88,1.04,1.92,0,3.78-.3,5.53-.88,1.76-.59,3.29-1.49,4.57-2.69l.23-.21-4.59-9.8-2.53,1.13,3.71,7.92c-.75.5-1.55.89-2.37,1.17-1.4.47-2.91.71-4.48.71-1.72,0-3.33-.29-4.79-.85-1.46-.56-2.74-1.37-3.82-2.4-1.08-1.03-1.92-2.25-2.51-3.62-.59-1.37-.89-2.89-.89-4.51s.3-3.14.89-4.51c.59-1.37,1.43-2.59,2.51-3.62Z"
+                        }),
+                        React.createElement("polygon", {
+                            fill: tx,
+                            points: "106.98 164.23 93.94 191.91 97.05 191.91 100.56 184.36 108.68 184.36 108.68 181.86 101.72 181.86 108.24 167.82 119.46 191.91 122.57 191.91 109.53 164.23 106.98 164.23"
+                        }),
+                        React.createElement("path", {
+                            fill: tx,
+                            d: "M146.93,178.75c.93-1.41,1.4-3.11,1.4-5.05,0-2.98-1.04-5.34-3.1-7-2.03-1.64-4.86-2.47-8.4-2.47h-10.28v27.69h2.86v-25.07h7.42c2.84,0,5.01.6,6.46,1.8,1.44,1.19,2.14,2.85,2.14,5.06s-.7,3.83-2.15,5.04c-.94.79-2.2,1.33-3.74,1.6-.66.12-1.36.19-2.06.21l-.81.02,8.2,11.35h3.33l-6.77-9.37c.53-.15,1.02-.33,1.49-.54,1.72-.76,3.06-1.86,3.99-3.26Z"
+                        }),
+                        React.createElement("path", {
+                            fill: tx,
+                            d: "M172.67,166c-2.25-1.18-4.89-1.77-7.85-1.77h-11.3v27.69h11.3c2.96,0,5.6-.6,7.85-1.77,2.26-1.18,4.04-2.83,5.29-4.91,1.25-2.08,1.89-4.49,1.89-7.16s-.63-5.08-1.89-7.16c-1.25-2.08-3.03-3.73-5.29-4.91ZM176.99,178.07c0,2.18-.51,4.14-1.51,5.82-1,1.67-2.44,3.01-4.27,3.96-1.84.96-4.04,1.45-6.55,1.45h-8.29v-22.45h8.29c2.51,0,4.71.49,6.55,1.45,1.83.96,3.26,2.29,4.27,3.96,1,1.68,1.51,3.63,1.51,5.82Z"
+                        }),
+                        React.createElement("g", null, React.createElement("polygon", {
+                            fill: tx,
+                            points: "187.89 166.85 204.26 166.85 204.26 164.23 185.03 164.23 185.03 191.91 204.84 191.91 204.84 189.29 187.89 189.29 187.89 166.85"
+                        }), React.createElement("rect", {
+                            fill: tx,
+                            x: "192.84",
+                            y: "176.57",
+                            width: "9.69",
+                            height: "2.58"
+                        })),
+                        React.createElement("polygon", {
+                            fill: tx,
+                            points: "231.33 164.23 231.33 186.73 213.28 164.23 210.96 164.23 210.96 191.91 213.82 191.91 213.82 169.41 231.91 191.91 234.19 191.91 234.19 164.23 231.33 164.23"
+                        }))),
+                React.createElement("g", null,
+                    React.createElement("path", {
+                        fill: tx,
+                        d: "M115.42,201.86c-.59-.26-1.31-.39-2.13-.39h-3.87v9.36h1.95v-2.63h1.93c.82,0,1.54-.14,2.13-.41.6-.27,1.06-.67,1.39-1.16.32-.5.49-1.1.49-1.79s-.16-1.31-.49-1.81c-.32-.5-.79-.89-1.39-1.16ZM115.34,204.83c0,.54-.17.94-.52,1.23h0c-.35.3-.89.44-1.6.44h-1.85v-3.36h1.85c.71,0,1.25.15,1.6.44.35.29.52.7.52,1.23Z"
+                    }),
+                    React.createElement("path", {
+                        fill: tx,
+                        d: "M130.23,201.46l-4.21,9.36h2.01l.9-2.11h4.38l.9,2.11h2.06l-4.22-9.36h-1.83ZM132.64,207.13h-3.03l1.52-3.53,1.51,3.53Z"
+                    }),
+                    React.createElement("path", {
+                        fill: tx,
+                        d: "M152.98,202.04c-.76-.38-1.65-.58-2.64-.58h-4.12v9.36h4.12c.99,0,1.87-.19,2.64-.58.77-.39,1.37-.94,1.8-1.64.43-.7.64-1.53.64-2.46s-.22-1.76-.64-2.46c-.43-.7-1.03-1.25-1.8-1.64ZM153.47,206.14c0,.6-.14,1.13-.4,1.57-.27.45-.64.8-1.12,1.04-.48.25-1.05.38-1.72.38h-2.07v-5.99h2.07c.66,0,1.24.13,1.72.38.48.25.85.6,1.12,1.03.27.44.4.97.4,1.58Z"
+                    }),
+                    React.createElement("polygon", {
+                        fill: tx,
+                        points: "168.01 206.89 172.4 206.89 172.4 205.25 168.01 205.25 168.01 203.15 172.96 203.15 172.96 201.46 166.06 201.46 166.06 210.82 173.14 210.82 173.14 209.13 168.01 209.13 168.01 206.89"
+                    }),
+                    React.createElement("polygon", {
+                        fill: tx,
+                        points: "185.82 209.13 185.82 201.46 183.87 201.46 183.87 210.82 190.58 210.82 190.58 209.13 185.82 209.13"
+                    }))));
+    }
 
-  const openM=(ri,mi,th)=>{const m=tournament.rounds[ri].matches[mi];if(phase==="finished")return;if(m.completed){resetAndOpen(ri,mi,th);return}setModal({ri,mi,match:m,th})};
+    function LogoSmall({width = 36, T}) {
+        return React.createElement("svg", {
+            width,
+            viewBox: "60 85 180 75",
+            xmlns: "http://www.w3.org/2000/svg"
+        }, React.createElement("path", {
+            fill: T.logoTree,
+            d: "M178.09,117.27c0,15.03-11.87,27.34-26.73,28.05v-2.73c13.36-.71,24-11.8,24-25.32s-11.38-25.36-25.36-25.36-25.36,11.37-25.36,25.36,10.65,24.61,24,25.32v2.73c-14.86-.71-26.73-13.02-26.73-28.05s12.6-28.09,28.09-28.09,28.09,12.6,28.09,28.09Z"
+        }), React.createElement("rect", {fill: T.logoText, x: "148.64", y: "117.25", width: "2.72", height: "37.43"}));
+    }
 
-  const resetAndOpen=(ri,mi,th)=>{setTournament(prev=>{const t=dc(prev);const m=t.rounds[ri].matches[mi];if(!m.completed)return t;const s1=m.score1,s2=m.score2;
-    m.team1.forEach(p=>t.scores[p.id]-=s1);m.team2.forEach(p=>t.scores[p.id]-=s2);
-    if(s1>s2){m.team1.forEach(p=>t.stats[p.id].w--);m.team2.forEach(p=>t.stats[p.id].l--)}
-    else if(s2>s1){m.team2.forEach(p=>t.stats[p.id].w--);m.team1.forEach(p=>t.stats[p.id].l--)}
-    else{m.team1.forEach(p=>t.stats[p.id].d--);m.team2.forEach(p=>t.stats[p.id].d--)}
-    const rd=t.rounds[ri];if(rd.completed)rd.byePlayers.forEach(p=>t.scores[p.id]-=t.byePoints);
-    m.score1=null;m.score2=null;m.completed=false;rd.completed=false;
-    setTimeout(()=>setModal({ri,mi,match:t.rounds[ri].matches[mi],th}),0);return t})};
+    // ─── Theme toggle icon ─────────────────────────────────────────────────
+    function IconSun() {
+        return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                    strokeLinecap="round">
+            <circle cx="12" cy="12" r="5"/>
+            <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+    }
 
-  const submitS=(s1)=>{if(!modal)return;const{ri,mi}=modal;
-    setTournament(prev=>{const t=dc(prev);const m=t.rounds[ri].matches[mi];const v1=Math.max(0,Math.min(t.maxPoints,s1)),v2=t.maxPoints-v1;
-    m.score1=v1;m.score2=v2;m.completed=true;
-    m.team1.forEach(p=>t.scores[p.id]=(t.scores[p.id]||0)+v1);m.team2.forEach(p=>t.scores[p.id]=(t.scores[p.id]||0)+v2);
-    if(v1>v2){m.team1.forEach(p=>t.stats[p.id].w++);m.team2.forEach(p=>t.stats[p.id].l++)}
-    else if(v2>v1){m.team2.forEach(p=>t.stats[p.id].w++);m.team1.forEach(p=>t.stats[p.id].l++)}
-    else{m.team1.forEach(p=>t.stats[p.id].d++);m.team2.forEach(p=>t.stats[p.id].d++)}
-    const rd=t.rounds[ri];if(rd.matches.every(m=>m.completed)){rd.completed=true;rd.byePlayers.forEach(p=>t.scores[p.id]=(t.scores[p.id]||0)+t.byePoints);if(ri+1<t.rounds.length)t.currentRound=ri+1}
-    return t});setModal(null)};
+    function IconMoon() {
+        return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                    strokeLinecap="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+    }
 
-  const finishT=()=>{setPhase("finished");setTournament(p=>({...p,phase:"finished"}))};
-  const newT=()=>{clearD();setTournament(null);setSetup({name:"",players:[],courts:[{id:gid(),name:"Kort 1"}],maxPoints:"21",byePoints:"11"});setPhase("setup")};
-  const getRank=()=>{if(!tournament)return[];return tournament.players.map(p=>({...p,points:tournament.scores[p.id]||0,stats:tournament.stats[p.id]||{w:0,d:0,l:0}})).sort((a,b)=>b.points!==a.points?b.points-a.points:b.stats.w-a.stats.w)};
+    function IconPlus() {
+        return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                    strokeLinecap="round">
+            <path d="M12 5v14M5 12h14"/>
+        </svg>
+    }
 
-  const sI={width:"100%",padding:"10px 14px",borderRadius:8,border:"1px solid "+P.border,background:P.mid,color:P.text,fontSize:15,outline:"none",boxSizing:"border-box",marginBottom:8};
-  const sL={display:"block",fontSize:11,fontWeight:600,color:P.dim,marginBottom:8,textTransform:"uppercase",letterSpacing:1.5};
+    function IconX() {
+        return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                    strokeLinecap="round">
+            <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+    }
 
-  if(phase==="loading")return<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100vh"}}><LogoSmall width={48}/><p style={{marginTop:16,fontSize:14,color:P.dim,fontFamily:"monospace"}}>Ładowanie...</p></div>;
+    function IconCheck() {
+        return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                    strokeLinecap="round">
+            <path d="M20 6 9 17l-5-5"/>
+        </svg>
+    }
 
-  if(phase==="setup")return(
-    <div style={{minHeight:"100vh"}}><div style={{maxWidth:560,margin:"0 auto",padding:"20px 20px"}}>
-      <div style={{textAlign:"center",marginBottom:14}}><GardenLogo width={200}/><div style={{height:12}}/><h2 style={{fontSize:15,fontWeight:300,color:P.dim,letterSpacing:5,textTransform:"uppercase"}}>Turniej Americano</h2></div>
-      <div style={{marginBottom:24}}><label style={sL}>Nazwa turnieju</label><input style={sI} value={setup.name} onChange={e=>setSetup(d=>({...d,name:e.target.value}))} placeholder="np. Turniej Weekendowy"/></div>
-      <div style={{display:"flex",gap:12,marginBottom:24}}>
-        <div style={{flex:1}}><label style={sL}>Punkty w meczu</label><input style={sI} type="number" min="1" value={setup.maxPoints} onChange={e=>setSetup(d=>({...d,maxPoints:e.target.value}))}/></div>
-        <div style={{flex:1}}><label style={sL}>Punkty za pauzę</label><input style={sI} type="number" min="0" value={setup.byePoints} onChange={e=>setSetup(d=>({...d,byePoints:e.target.value}))}/></div>
-      </div>
-      <div style={{marginBottom:24}}>
-        <label style={sL}>Gracze ({setup.players.length})</label>
-        <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:10}}>{setup.players.map(p=><div key={p.id} style={{display:"flex",alignItems:"center",gap:6,background:P.card,border:"1px solid "+P.border,borderRadius:20,padding:"6px 14px",fontSize:14}}><span>{p.name}</span><button style={{background:"none",border:"none",color:P.dim,cursor:"pointer",padding:0,display:"flex"}} onClick={()=>remP(p.id)}><IconX/></button></div>)}</div>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}><input ref={ref} style={{...sI,flex:1,marginBottom:0,...(playerDup?{borderColor:"#e07060"}:{})}} value={npn} onChange={e=>setNpn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addP()} placeholder="Imię gracza"/><button style={{display:"flex",alignItems:"center",gap:6,padding:"10px 18px",background:playerDup?"#555":P.olive,color:playerDup?"#999":P.dark,border:"none",borderRadius:8,fontSize:14,fontWeight:700,cursor:playerDup?"not-allowed":"pointer",whiteSpace:"nowrap"}} disabled={playerDup} onClick={addP}><IconPlus/> Dodaj</button></div>
-        {setup.players.length>0&&setup.players.length<4&&<p style={{color:P.olive,fontSize:12,marginTop:4}}>Minimum 4 graczy</p>}
-        {playerDup&&<p style={{color:"#e07060",fontSize:12,marginTop:4}}>Gracz o tej nazwie już istnieje</p>}
-      </div>
-      <div style={{marginBottom:24}}>
-        <label style={sL}>Korty ({setup.courts.length})</label>
-        {setup.courts.map((c,ci)=><div key={c.id} style={{display:"flex",gap:8,alignItems:"center",marginBottom:6}}><input style={{...sI,flex:1,marginBottom:0,...(courtDups[ci]?{borderColor:"#e07060"}:{})}} value={c.name} onChange={e=>updC(c.id,e.target.value)}/>{setup.courts.length>1&&<button style={{background:"none",border:"none",color:P.dim,cursor:"pointer",padding:4,display:"flex"}} onClick={()=>remC(c.id)}><IconX/></button>}</div>)}
-        {hasCourtDups&&<p style={{color:"#e07060",fontSize:12,marginTop:2,marginBottom:6}}>Nazwy kortów muszą być unikatowe</p>}
-        <button style={{display:"flex",alignItems:"center",gap:6,padding:"8px 16px",background:"transparent",color:P.olive,border:"1px dashed "+P.olive,borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",marginTop:8}} onClick={addC}><IconPlus/> Dodaj kort</button>
-      </div>
-      <button style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:10,padding:"14px 24px",background:"linear-gradient(135deg,"+P.olive+","+P.oliveDark+")",color:P.dark,border:"none",borderRadius:12,fontSize:17,fontWeight:800,cursor:canStart?"pointer":"not-allowed",opacity:canStart?1:0.4}} disabled={!canStart} onClick={startT}><IconPlay/> Rozpocznij turniej</button>
-    </div></div>);
+    function IconPlay() {
+        return <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+    }
 
-  if((phase==="tournament"||phase==="finished")&&tournament){
-    const rank=getRank(), cr=tournament.rounds.filter(r=>r.completed).length, fin=phase==="finished";
-    return(<div style={{minHeight:"100vh"}}>
-      {modal&&<ScoreModal match={modal.match} maxPoints={tournament.maxPoints} teamHint={modal.th} onSubmit={submitS} onClose={()=>setModal(null)}/>}
-      <div style={{background:P.mid,borderBottom:"1px solid "+P.border,padding:"10px 20px",position:"sticky",top:0,zIndex:50}}>
-        <div style={{maxWidth:1200,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-          <div style={{display:"flex",alignItems:"center",gap:12}}><LogoSmall width={36}/><span style={{fontSize:15,fontWeight:600}}>{tournament.name}</span></div>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:13,color:P.dim,background:P.card,padding:"4px 12px",borderRadius:12,fontWeight:700}}>{cr}/{tournament.rounds.length} rund</span>
-            {!fin&&<button style={{padding:"6px 16px",background:"#c0392b",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:700,cursor:"pointer"}} onClick={finishT}>Zakończ turniej</button>}
-            {fin&&<button style={{padding:"6px 16px",background:P.olive,color:P.dark,border:"none",borderRadius:8,fontSize:13,fontWeight:700,cursor:"pointer"}} onClick={newT}>Nowy turniej</button>}
-          </div>
-        </div>
-      </div>
-      {fin&&rank.length>0&&<div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,padding:"24px 20px",background:"linear-gradient(135deg,"+P.mid+" 0%,#003d20 100%)",borderBottom:"1px solid "+P.border}}>
-        <div style={{fontSize:48}}>🏆</div><div><div style={{fontSize:12,color:P.olive,textTransform:"uppercase",letterSpacing:2,fontWeight:700}}>Zwycięzca</div><div style={{fontSize:28,fontWeight:800,margin:"2px 0",color:"#fff"}}>{rank[0].name}</div><div style={{fontSize:16,color:P.dim}}>{rank[0].points} pkt • Z-R-P {rank[0].stats.w}-{rank[0].stats.d}-{rank[0].stats.l}</div></div>
-      </div>}
-      <div className="main-grid" style={{maxWidth:1200,margin:"0 auto",padding:20,display:"grid",gridTemplateColumns:"340px 1fr",gap:20,alignItems:"start"}}>
-        <div style={{background:P.mid,borderRadius:12,border:"1px solid "+P.border,overflow:"hidden"}}>
-          <h2 style={{fontSize:12,fontWeight:700,color:P.dim,textTransform:"uppercase",letterSpacing:2,padding:"14px 16px",margin:0,borderBottom:"1px solid "+P.border}}>Ranking</h2>
-          <div>
-            <div style={{display:"flex",alignItems:"center",padding:"8px 16px",borderBottom:"1px solid "+P.border,fontSize:10,color:P.dim,textTransform:"uppercase",letterSpacing:1.5}}><span style={{width:32,textAlign:"center"}}>#</span><span style={{flex:1}}>Gracz</span><span style={{width:70,textAlign:"center"}}>Z-R-P</span><span style={{width:48,textAlign:"right"}}>Pkt</span></div>
-            {rank.map((p,i)=><div key={p.id} style={{display:"flex",alignItems:"center",padding:"10px 16px",borderBottom:"1px solid "+P.border,...(i===0&&fin?{background:"rgba(212,168,67,0.1)"}:i===1&&fin?{background:"rgba(148,163,184,0.06)"}:i===2&&fin?{background:"rgba(192,138,69,0.06)"}:{})}}>
-              <span style={{width:32,textAlign:"center",fontSize:15,fontWeight:700}}>{i===0&&fin?"🥇":i===1&&fin?"🥈":i===2&&fin?"🥉":i+1}</span>
-              <span style={{flex:1,fontSize:14,fontWeight:600}}>{p.name}</span>
-              <span style={{width:70,textAlign:"center",fontSize:13,fontWeight:700,fontVariantNumeric:"tabular-nums"}}><span style={{color:P.olive}}>{p.stats.w}</span>-<span style={{color:P.dim}}>{p.stats.d}</span>-<span style={{color:"#d46b5b"}}>{p.stats.l}</span></span>
-              <span style={{width:48,textAlign:"right",fontSize:16,fontWeight:800,fontVariantNumeric:"tabular-nums",color:P.olive}}>{p.points}</span>
-            </div>)}
-          </div>
-        </div>
-        <div style={{background:P.mid,borderRadius:12,border:"1px solid "+P.border,overflow:"hidden"}}>
-          <h2 style={{fontSize:12,fontWeight:700,color:P.dim,textTransform:"uppercase",letterSpacing:2,padding:"14px 16px",margin:0,borderBottom:"1px solid "+P.border}}>Rundy</h2>
-          <div style={{padding:16,display:"flex",flexDirection:"column",gap:16,maxHeight:"calc(100vh - 140px)",overflowY:"auto"}}>
-            {tournament.rounds.map((rd,ri)=><div key={rd.id} style={{background:P.card,borderRadius:10,border:"1px solid "+(ri===tournament.currentRound&&!fin&&!rd.completed?P.olive:P.border),padding:14,opacity:rd.completed?0.7:1}}>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                <span style={{fontSize:15,fontWeight:700}}>Runda {rd.number}</span>
-                {rd.completed&&<span style={{display:"flex",alignItems:"center",gap:4,fontSize:12,color:P.olive,fontWeight:600}}><IconCheck/> Ukończona</span>}
-                {ri===tournament.currentRound&&!rd.completed&&!fin&&<span style={{fontSize:12,color:P.dark,fontWeight:700,background:P.olive,padding:"2px 10px",borderRadius:8}}>Trwa</span>}
-              </div>
-              {rd.matches.map((m,mi)=>{const cc=!fin;
-                const ts=(w,l)=>({flex:1,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px",borderRadius:8,border:"1px solid "+P.border,background:P.card,transition:"all 0.15s",...(cc?{cursor:"pointer"}:{}),...(m.completed?(w?{borderColor:P.olive+"88",background:"rgba(148,180,135,0.1)"}:l?{borderColor:"#c0392b44",background:"rgba(192,57,43,0.05)"}:{borderColor:"#d4a84366",background:"rgba(212,168,67,0.05)"}):{}),});
-                return<div key={m.id} style={{background:P.mid,borderRadius:8,padding:12,marginBottom:8,border:"1px solid "+P.border}}>
-                  <div style={{fontSize:11,color:P.dim,textTransform:"uppercase",letterSpacing:1,marginBottom:8,fontWeight:700}}>{m.court.name}</div>
-                  <div style={{display:"flex",alignItems:"stretch",gap:8}}>
-                    <div className={cc?"team-click":""} style={ts(m.score1>m.score2,m.score1<m.score2)} onClick={()=>cc&&openM(ri,mi,1)}><span style={{fontSize:13,fontWeight:600}}>{m.team1.map(p=>p.name).join(" & ")}</span>{m.completed&&<span style={{fontSize:20,fontWeight:800,fontVariantNumeric:"tabular-nums",color:P.olive,marginLeft:8}}>{m.score1}</span>}</div>
-                    <span style={{display:"flex",alignItems:"center",fontSize:11,color:P.dim,fontWeight:700}}>vs</span>
-                    <div className={cc?"team-click":""} style={ts(m.score2>m.score1,m.score2<m.score1)} onClick={()=>cc&&openM(ri,mi,2)}><span style={{fontSize:13,fontWeight:600}}>{m.team2.map(p=>p.name).join(" & ")}</span>{m.completed&&<span style={{fontSize:20,fontWeight:800,fontVariantNumeric:"tabular-nums",color:P.olive,marginLeft:8}}>{m.score2}</span>}</div>
-                  </div>
-                  {!m.completed&&!fin&&<div style={{fontSize:11,color:P.dim,textAlign:"center",marginTop:6,fontStyle:"italic"}}>Kliknij parę, aby podać wynik</div>}
-                </div>})}
-              {rd.byePlayers.length>0&&<div style={{marginTop:8,padding:"8px 12px",background:"rgba(148,180,135,0.06)",borderRadius:6,fontSize:13,color:P.dim,border:"1px dashed rgba(148,180,135,0.27)"}}>Pauza: {rd.byePlayers.map(p=>p.name).join(", ")}{tournament.byePoints>0&&<span style={{opacity:0.6}}> (+{tournament.byePoints} pkt)</span>}</div>}
-            </div>)}
-          </div>
-        </div>
-      </div>
-    </div>);
-  }
-  return null;
-}
-ReactDOM.render(React.createElement(App),document.getElementById("root"));
+    // ─── Number input that ignores scroll ──────────────────────────────────
+    function NumInput({style, ...props}) {
+        const r = useRef(null);
+        useEffect(() => {
+            const el = r.current;
+            if (!el) return;
+            const h = e => e.preventDefault();
+            el.addEventListener("wheel", h, {passive: false});
+            return () => el.removeEventListener("wheel", h)
+        }, []);
+        return <input ref={r} type="number" style={style} {...props}/>
+    }
+
+    // ─── ALGORITHM ─────────────────────────────────────────────────────────
+    function generateRounds(players, courts) {
+        const n = players.length;
+        const pk = (a, b) => a < b ? a + "|" + b : b + "|" + a;
+        const activeCourts = Math.min(courts.length, Math.floor(n / 4));
+        const activePlayerCount = activeCourts * 4;
+        const pairsPerRound = activeCourts * 2;
+        const allPairKeys = [];
+        for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) allPairKeys.push(pk(players[i].id, players[j].id));
+        const maxNeededRounds = pairsPerRound > 0 ? Math.ceil(allPairKeys.length / pairsPerRound) : 1;
+        let bestResult = null, bestMaxPartner = Infinity;
+        const totalAttempts = n <= 12 ? 15 : 8;
+        for (let fa = 0; fa < totalAttempts; fa++) {
+            const pc = new Map(), oc = new Map(), bc = new Map(), lbr = new Map();
+            players.forEach(p => {
+                bc.set(p.id, 0);
+                lbr.set(p.id, -999)
+            });
+            const gpc = (a, b) => pc.get(pk(a, b)) || 0, goc = (a, b) => oc.get(pk(a, b)) || 0;
+            const ipc = (a, b) => pc.set(pk(a, b), gpc(a, b) + 1), ioc = (a, b) => oc.set(pk(a, b), goc(a, b) + 1);
+            const rounds = [];
+            for (let r = 0; r < maxNeededRounds + 5; r++) {
+                const sorted = [...players].sort((a, b) => {
+                    const aC = lbr.get(a.id) === r - 1 ? 1 : 0, bC = lbr.get(b.id) === r - 1 ? 1 : 0;
+                    if (aC !== bC) return bC - aC;
+                    const aB = bc.get(a.id), bB = bc.get(b.id);
+                    if (aB !== bB) return bB - aB;
+                    return Math.random() - 0.5
+                });
+                const ap = sorted.slice(0, activePlayerCount), bp = sorted.slice(activePlayerCount);
+                bp.forEach(p => {
+                    bc.set(p.id, bc.get(p.id) + 1);
+                    lbr.set(p.id, r)
+                });
+                let bestM = null, bestS = Infinity;
+                const att = n <= 12 ? 2000 : 800;
+                for (let a = 0; a < att; a++) {
+                    const sh = [...ap].sort(() => Math.random() - 0.5);
+                    let ts = 0;
+                    const ms = [];
+                    for (let g = 0; g < activeCourts; g++) {
+                        const f = sh.slice(g * 4, g * 4 + 4);
+                        const sp = [[f[0], f[1], f[2], f[3]], [f[0], f[2], f[1], f[3]], [f[0], f[3], f[1], f[2]]];
+                        let bss = Infinity, bt1, bt2;
+                        for (const [a, b, c, d] of sp) {
+                            const ps = gpc(a.id, b.id) + gpc(c.id, d.id);
+                            const os = goc(a.id, c.id) + goc(a.id, d.id) + goc(b.id, c.id) + goc(b.id, d.id);
+                            const sc = ps * ps * 50 + os * os;
+                            if (sc < bss) {
+                                bss = sc;
+                                bt1 = [a, b];
+                                bt2 = [c, d]
+                            }
+                        }
+                        ts += bss;
+                        ms.push({t1: bt1, t2: bt2, court: courts[g]})
+                    }
+                    if (ts < bestS) {
+                        bestS = ts;
+                        bestM = ms
+                    }
+                    if (ts === 0) break
+                }
+                if (!bestM) break;
+                for (const m of bestM) {
+                    ipc(m.t1[0].id, m.t1[1].id);
+                    ipc(m.t2[0].id, m.t2[1].id);
+                    for (const a of m.t1) for (const b of m.t2) ioc(a.id, b.id)
+                }
+                rounds.push({
+                    id: gid(),
+                    number: rounds.length + 1,
+                    matches: bestM.map(m => ({
+                        id: gid(),
+                        court: m.court,
+                        team1: m.t1.map(p => ({id: p.id, name: p.name})),
+                        team2: m.t2.map(p => ({id: p.id, name: p.name})),
+                        score1: null,
+                        score2: null,
+                        completed: false
+                    })),
+                    byePlayers: bp.map(p => ({id: p.id, name: p.name})),
+                    completed: false
+                });
+                if (allPairKeys.every(k => (pc.get(k) || 0) > 0)) break;
+                if (rounds.length >= maxNeededRounds + 3) break
+            }
+            let mx = 0;
+            for (const [, c] of pc) if (c > mx) mx = c;
+            if (mx < bestMaxPartner) {
+                bestMaxPartner = mx;
+                bestResult = rounds;
+                if (mx <= 1) break
+            }
+        }
+        return bestResult || [];
+    }
+
+    // ─── Score Modal ───────────────────────────────────────────────────────
+    function ScoreModal({match, maxPoints, onSubmit, onClose, teamHint, T}) {
+        const sel = teamHint;
+        const balls = Array.from({length: maxPoints + 1}, (_, i) => i);
+        const t1n = match.team1.map(p => p.name).join(" & "), t2n = match.team2.map(p => p.name).join(" & ");
+        return (
+            <div style={{
+                position: "fixed",
+                inset: 0,
+                background: T.modalOverlay,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 100,
+                padding: 20
+            }} onClick={onClose}>
+                <div style={{
+                    background: T.mid,
+                    borderRadius: 16,
+                    border: "1px solid " + T.borderHi,
+                    padding: 24,
+                    maxWidth: 480,
+                    width: "100%",
+                    maxHeight: "90vh",
+                    overflowY: "auto",
+                    color: T.text
+                }} onClick={e => e.stopPropagation()}>
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 16
+                    }}>
+                        <span style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: T.dim,
+                            textTransform: "uppercase",
+                            letterSpacing: 1.5
+                        }}>{match.court.name}</span>
+                        <button style={{
+                            background: "none",
+                            border: "none",
+                            color: T.dim,
+                            cursor: "pointer",
+                            padding: 4,
+                            display: "flex"
+                        }} onClick={onClose}><IconX/></button>
+                    </div>
+                    <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 16}}>
+                        <div style={{
+                            flex: 1,
+                            padding: 12,
+                            borderRadius: 10,
+                            border: "2px solid " + (sel === 1 ? T.olive : T.border),
+                            background: sel === 1 ? "rgba(148,180,135,0.12)" : T.card,
+                            textAlign: "center",
+                            opacity: sel === 1 ? 1 : 0.4
+                        }}><span style={{display: "block", fontSize: 14, fontWeight: 700}}>{t1n}</span></div>
+                        <span style={{fontSize: 12, color: T.dim, fontWeight: 700}}>vs</span>
+                        <div style={{
+                            flex: 1,
+                            padding: 12,
+                            borderRadius: 10,
+                            border: "2px solid " + (sel === 2 ? T.olive : T.border),
+                            background: sel === 2 ? "rgba(148,180,135,0.12)" : T.card,
+                            textAlign: "center",
+                            opacity: sel === 2 ? 1 : 0.4
+                        }}><span style={{display: "block", fontSize: 14, fontWeight: 700}}>{t2n}</span></div>
+                    </div>
+                    <p style={{fontSize: 13, color: T.dim, marginBottom: 12}}>Punkty dla <strong
+                        style={{color: T.text}}>{sel === 1 ? t1n : t2n}</strong>:</p>
+                    <div style={{display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center"}}>
+                        {balls.map(v => <button key={v} onClick={() => onSubmit(sel === 1 ? v : maxPoints - v)}
+                                                onMouseEnter={e => {
+                                                    e.currentTarget.style.background = T.ballHoverBg;
+                                                    e.currentTarget.style.borderColor = T.ballHoverBorder;
+                                                    e.currentTarget.style.color = T.ballHoverText
+                                                }}
+                                                onMouseLeave={e => {
+                                                    e.currentTarget.style.background = T.ballBg;
+                                                    e.currentTarget.style.borderColor = T.ballBorder;
+                                                    e.currentTarget.style.color = T.ballText
+                                                }}
+                                                style={{
+                                                    width: 46,
+                                                    height: 46,
+                                                    borderRadius: "50%",
+                                                    border: "2px solid " + T.ballBorder,
+                                                    background: T.ballBg,
+                                                    color: T.ballText,
+                                                    fontSize: 15,
+                                                    fontWeight: 700,
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    cursor: "pointer",
+                                                    transition: "all 0.1s",
+                                                    fontVariantNumeric: "tabular-nums"
+                                                }}>{v}</button>)}
+                    </div>
+                </div>
+            </div>);
+    }
+
+    // ─── Theme Toggle Button ───────────────────────────────────────────────
+    function ThemeToggle({isDark, onToggle, T}) {
+        return <button onClick={onToggle} title={isDark ? "Tryb jasny" : "Tryb ciemny"} style={{
+            background: T.card,
+            border: "1px solid " + T.border,
+            borderRadius: 8,
+            padding: "6px 10px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            color: T.dim,
+            fontSize: 12,
+            fontWeight: 600
+        }}>
+            {isDark ? <IconSun/> : <IconMoon/>}
+        </button>;
+    }
+
+    // ─── App ───────────────────────────────────────────────────────────────
+    function App() {
+        const [isDark, setIsDark] = useState(() => {
+            try {
+                return localStorage.getItem(TK) !== "light"
+            } catch (e) {
+                return true
+            }
+        });
+        const T = isDark ? DARK : LIGHT;
+        const toggleTheme = () => {
+            const next = !isDark;
+            setIsDark(next);
+            try {
+                localStorage.setItem(TK, next ? "dark" : "light")
+            } catch (e) {
+            }
+        };
+
+        const [phase, setPhase] = useState("loading");
+        const [tournament, setTournament] = useState(null);
+        const [setup, setSetup] = useState({
+            name: "",
+            players: [],
+            courts: [{id: gid(), name: "Kort 1"}],
+            maxPoints: "21",
+            byePoints: "11"
+        });
+        const [npn, setNpn] = useState("");
+        const [modal, setModal] = useState(null);
+        const ref = useRef(null);
+        const nv = v => {
+            const n = parseInt(v);
+            return isNaN(n) ? 0 : n
+        };
+
+        useEffect(() => {
+            const s = loadD();
+            if (s && s.phase) {
+                if (s.phase === "tournament" || s.phase === "finished") {
+                    setTournament(s);
+                    setPhase(s.phase)
+                } else {
+                    if (s.setupData) setSetup(s.setupData);
+                    setPhase("setup")
+                }
+            } else setPhase("setup")
+        }, []);
+        useEffect(() => {
+            if (phase === "loading") return;
+            if (phase === "setup") saveD({phase: "setup", setupData: setup}); else if (tournament) saveD({
+                ...tournament,
+                phase
+            })
+        }, [phase, setup, tournament]);
+        useEffect(() => {
+            document.body.style.background = T.dark;
+            document.body.style.color = T.text
+        }, [T]);
+
+        const addP = () => {
+            const name = npn.trim();
+            if (!name) return;
+            if (setup.players.some(p => p.name.toLowerCase() === name.toLowerCase())) return;
+            setSetup(d => ({...d, players: [...d.players, {id: gid(), name}]}));
+            setNpn("");
+            setTimeout(() => ref.current?.focus(), 50)
+        };
+        const playerDup = npn.trim() && setup.players.some(p => p.name.toLowerCase() === npn.trim().toLowerCase());
+        const remP = id => setSetup(d => ({...d, players: d.players.filter(p => p.id !== id)}));
+        const addC = () => {
+            const b = "Kort ";
+            let num = setup.courts.length + 1;
+            const ex = setup.courts.map(c => c.name.toLowerCase());
+            while (ex.includes((b + num).toLowerCase())) num++;
+            setSetup(d => ({...d, courts: [...d.courts, {id: gid(), name: b + num}]}))
+        };
+        const remC = id => setSetup(d => ({...d, courts: d.courts.filter(c => c.id !== id)}));
+        const updC = (id, name) => setSetup(d => ({...d, courts: d.courts.map(c => c.id === id ? {...c, name} : c)}));
+        const courtDups = setup.courts.map((c, i) => {
+            const name = c.name.trim().toLowerCase();
+            if (!name) return false;
+            return setup.courts.some((o, j) => j !== i && o.name.trim().toLowerCase() === name)
+        });
+        const hasCourtDups = courtDups.some(Boolean);
+        const canStart = setup.players.length >= 4 && setup.courts.length >= 1 && nv(setup.maxPoints) > 0 && !hasCourtDups;
+
+        const startT = () => {
+            if (!canStart) return;
+            const rounds = generateRounds(setup.players, setup.courts);
+            const mp = nv(setup.maxPoints), bp = nv(setup.byePoints);
+            const t = {
+                phase: "tournament",
+                name: setup.name || "Turniej Americano",
+                players: dc(setup.players),
+                courts: dc(setup.courts),
+                maxPoints: mp,
+                byePoints: bp,
+                rounds,
+                scores: {},
+                stats: {},
+                currentRound: 0
+            };
+            setup.players.forEach(p => {
+                t.scores[p.id] = 0;
+                t.stats[p.id] = {w: 0, d: 0, l: 0}
+            });
+            setTournament(t);
+            setPhase("tournament")
+        };
+        const openM = (ri, mi, th) => {
+            const m = tournament.rounds[ri].matches[mi];
+            if (phase === "finished") return;
+            if (m.completed) {
+                resetAndOpen(ri, mi, th);
+                return
+            }
+            setModal({ri, mi, match: m, th})
+        };
+        const resetAndOpen = (ri, mi, th) => {
+            setTournament(prev => {
+                const t = dc(prev);
+                const m = t.rounds[ri].matches[mi];
+                if (!m.completed) return t;
+                const s1 = m.score1, s2 = m.score2;
+                m.team1.forEach(p => t.scores[p.id] -= s1);
+                m.team2.forEach(p => t.scores[p.id] -= s2);
+                if (s1 > s2) {
+                    m.team1.forEach(p => t.stats[p.id].w--);
+                    m.team2.forEach(p => t.stats[p.id].l--)
+                } else if (s2 > s1) {
+                    m.team2.forEach(p => t.stats[p.id].w--);
+                    m.team1.forEach(p => t.stats[p.id].l--)
+                } else {
+                    m.team1.forEach(p => t.stats[p.id].d--);
+                    m.team2.forEach(p => t.stats[p.id].d--)
+                }
+                const rd = t.rounds[ri];
+                if (rd.completed) rd.byePlayers.forEach(p => t.scores[p.id] -= t.byePoints);
+                m.score1 = null;
+                m.score2 = null;
+                m.completed = false;
+                rd.completed = false;
+                setTimeout(() => setModal({ri, mi, match: t.rounds[ri].matches[mi], th}), 0);
+                return t
+            })
+        };
+        const submitS = (s1) => {
+            if (!modal) return;
+            const {ri, mi} = modal;
+            setTournament(prev => {
+                const t = dc(prev);
+                const m = t.rounds[ri].matches[mi];
+                const v1 = Math.max(0, Math.min(t.maxPoints, s1)), v2 = t.maxPoints - v1;
+                m.score1 = v1;
+                m.score2 = v2;
+                m.completed = true;
+                m.team1.forEach(p => t.scores[p.id] = (t.scores[p.id] || 0) + v1);
+                m.team2.forEach(p => t.scores[p.id] = (t.scores[p.id] || 0) + v2);
+                if (v1 > v2) {
+                    m.team1.forEach(p => t.stats[p.id].w++);
+                    m.team2.forEach(p => t.stats[p.id].l++)
+                } else if (v2 > v1) {
+                    m.team2.forEach(p => t.stats[p.id].w++);
+                    m.team1.forEach(p => t.stats[p.id].l++)
+                } else {
+                    m.team1.forEach(p => t.stats[p.id].d++);
+                    m.team2.forEach(p => t.stats[p.id].d++)
+                }
+                const rd = t.rounds[ri];
+                if (rd.matches.every(m => m.completed)) {
+                    rd.completed = true;
+                    rd.byePlayers.forEach(p => t.scores[p.id] = (t.scores[p.id] || 0) + t.byePoints);
+                    if (ri + 1 < t.rounds.length) t.currentRound = ri + 1
+                }
+                return t
+            });
+            setModal(null)
+        };
+        const finishT = () => {
+            setPhase("finished");
+            setTournament(p => ({...p, phase: "finished"}))
+        };
+        const newT = () => {
+            clearD();
+            setTournament(null);
+            setSetup({name: "", players: [], courts: [{id: gid(), name: "Kort 1"}], maxPoints: "21", byePoints: "11"});
+            setPhase("setup")
+        };
+        const getRank = () => {
+            if (!tournament) return [];
+            return tournament.players.map(p => ({
+                ...p,
+                points: tournament.scores[p.id] || 0,
+                stats: tournament.stats[p.id] || {w: 0, d: 0, l: 0}
+            })).sort((a, b) => b.points !== a.points ? b.points - a.points : b.stats.w - a.stats.w)
+        };
+
+        const sI = {
+            width: "100%",
+            padding: "10px 14px",
+            borderRadius: 8,
+            border: "1px solid " + T.border,
+            background: T.card,
+            color: T.text,
+            fontSize: 15,
+            outline: "none",
+            boxSizing: "border-box",
+            marginBottom: 8
+        };
+        const sL = {
+            display: "block",
+            fontSize: 11,
+            fontWeight: 600,
+            color: T.dim,
+            marginBottom: 8,
+            textTransform: "uppercase",
+            letterSpacing: 1.5
+        };
+
+        if (phase === "loading") return <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            background: T.dark
+        }}><LogoSmall width={48} T={T}/><p
+            style={{marginTop: 16, fontSize: 14, color: T.dim, fontFamily: "monospace"}}>Ładowanie...</p></div>;
+
+        if (phase === "setup") return (
+            <div style={{minHeight: "100vh", background: T.dark, color: T.text}}>
+                <div style={{maxWidth: 560, margin: "0 auto", padding: "20px 20px"}}>
+                    <div style={{display: "flex", justifyContent: "flex-end", marginBottom: 8}}><ThemeToggle
+                        isDark={isDark} onToggle={toggleTheme} T={T}/></div>
+                    <div style={{textAlign: "center", marginBottom: 14}}><GardenLogo width={200} T={T}/>
+                        <div style={{height: 12}}/>
+                        <h2 style={{
+                            fontSize: 15,
+                            fontWeight: 300,
+                            color: T.dim,
+                            letterSpacing: 5,
+                            textTransform: "uppercase"
+                        }}>Turniej Americano</h2></div>
+                    <div style={{marginBottom: 24}}><label style={sL}>Nazwa turnieju</label><input style={sI}
+                                                                                                   value={setup.name}
+                                                                                                   onChange={e => setSetup(d => ({
+                                                                                                       ...d,
+                                                                                                       name: e.target.value
+                                                                                                   }))}
+                                                                                                   placeholder="np. Turniej Weekendowy"/>
+                    </div>
+                    <div style={{display: "flex", gap: 12, marginBottom: 24}}>
+                        <div style={{flex: 1}}><label style={sL}>Punkty w meczu</label><NumInput style={sI} min="1"
+                                                                                                 value={setup.maxPoints}
+                                                                                                 onChange={e => setSetup(d => ({
+                                                                                                     ...d,
+                                                                                                     maxPoints: e.target.value
+                                                                                                 }))}/></div>
+                        <div style={{flex: 1}}><label style={sL}>Punkty za pauzę</label><NumInput style={sI} min="0"
+                                                                                                  value={setup.byePoints}
+                                                                                                  onChange={e => setSetup(d => ({
+                                                                                                      ...d,
+                                                                                                      byePoints: e.target.value
+                                                                                                  }))}/></div>
+                    </div>
+                    <div style={{marginBottom: 24}}>
+                        <label style={sL}>Gracze ({setup.players.length})</label>
+                        <div style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 8,
+                            marginBottom: 10
+                        }}>{setup.players.map(p => <div key={p.id} style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            background: T.card,
+                            border: "1px solid " + T.border,
+                            borderRadius: 20,
+                            padding: "6px 14px",
+                            fontSize: 14
+                        }}><span>{p.name}</span>
+                            <button style={{
+                                background: "none",
+                                border: "none",
+                                color: T.dim,
+                                cursor: "pointer",
+                                padding: 0,
+                                display: "flex"
+                            }} onClick={() => remP(p.id)}><IconX/></button>
+                        </div>)}</div>
+                        <div style={{display: "flex", gap: 8, alignItems: "center"}}><input ref={ref} style={{
+                            ...sI,
+                            flex: 1,
+                            marginBottom: 0, ...(playerDup ? {borderColor: T.err} : {})
+                        }} value={npn} onChange={e => setNpn(e.target.value)}
+                                                                                            onKeyDown={e => e.key === "Enter" && addP()}
+                                                                                            placeholder="Imię gracza"/>
+                            <button style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                                padding: "10px 18px",
+                                background: playerDup ? T.errBg : T.olive,
+                                color: playerDup ? T.errText : T.dark,
+                                border: "none",
+                                borderRadius: 8,
+                                fontSize: 14,
+                                fontWeight: 700,
+                                cursor: playerDup ? "not-allowed" : "pointer",
+                                whiteSpace: "nowrap"
+                            }} disabled={playerDup} onClick={addP}><IconPlus/> Dodaj
+                            </button>
+                        </div>
+                        {setup.players.length > 0 && setup.players.length < 4 &&
+                            <p style={{color: T.olive, fontSize: 12, marginTop: 4}}>Minimum 4 graczy</p>}
+                        {playerDup &&
+                            <p style={{color: T.err, fontSize: 12, marginTop: 4}}>Gracz o tej nazwie już istnieje</p>}
+                    </div>
+                    <div style={{marginBottom: 24}}>
+                        <label style={sL}>Korty ({setup.courts.length})</label>
+                        {setup.courts.map((c, ci) => <div key={c.id} style={{
+                            display: "flex",
+                            gap: 8,
+                            alignItems: "center",
+                            marginBottom: 6
+                        }}><input
+                            style={{...sI, flex: 1, marginBottom: 0, ...(courtDups[ci] ? {borderColor: T.err} : {})}}
+                            value={c.name} onChange={e => updC(c.id, e.target.value)}/>{setup.courts.length > 1 &&
+                            <button style={{
+                                background: "none",
+                                border: "none",
+                                color: T.dim,
+                                cursor: "pointer",
+                                padding: 4,
+                                display: "flex"
+                            }} onClick={() => remC(c.id)}><IconX/></button>}</div>)}
+                        {hasCourtDups &&
+                            <p style={{color: T.err, fontSize: 12, marginTop: 2, marginBottom: 6}}>Nazwy kortów muszą
+                                być unikatowe</p>}
+                        <button style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "8px 16px",
+                            background: "transparent",
+                            color: T.olive,
+                            border: "1px dashed " + T.olive,
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            marginTop: 8
+                        }} onClick={addC}><IconPlus/> Dodaj kort
+                        </button>
+                    </div>
+                    <button style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 10,
+                        padding: "14px 24px",
+                        background: "linear-gradient(135deg," + T.olive + "," + T.oliveDark + ")",
+                        color: isDark ? T.dark : "#fff",
+                        border: "none",
+                        borderRadius: 12,
+                        fontSize: 17,
+                        fontWeight: 800,
+                        cursor: canStart ? "pointer" : "not-allowed",
+                        opacity: canStart ? 1 : 0.4
+                    }} disabled={!canStart} onClick={startT}><IconPlay/> Rozpocznij turniej
+                    </button>
+                </div>
+            </div>);
+
+        if ((phase === "tournament" || phase === "finished") && tournament) {
+            const rank = getRank(), cr = tournament.rounds.filter(r => r.completed).length, fin = phase === "finished";
+            return (<div style={{minHeight: "100vh", background: T.dark, color: T.text}}>
+                {modal && <ScoreModal match={modal.match} maxPoints={tournament.maxPoints} teamHint={modal.th}
+                                      onSubmit={submitS} onClose={() => setModal(null)} T={T}/>}
+                <div style={{
+                    background: T.mid,
+                    borderBottom: "1px solid " + T.border,
+                    padding: "10px 20px",
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 50
+                }}>
+                    <div style={{
+                        maxWidth: 1200,
+                        margin: "0 auto",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 8
+                    }}>
+                        <div style={{display: "flex", alignItems: "center", gap: 12}}><LogoSmall width={36} T={T}/><span
+                            style={{fontSize: 15, fontWeight: 600}}>{tournament.name}</span></div>
+                        <div style={{display: "flex", alignItems: "center", gap: 10}}>
+                            <ThemeToggle isDark={isDark} onToggle={toggleTheme} T={T}/>
+                            <span style={{
+                                fontSize: 13,
+                                color: T.dim,
+                                background: T.card,
+                                padding: "4px 12px",
+                                borderRadius: 12,
+                                fontWeight: 700
+                            }}>{cr}/{tournament.rounds.length} rund</span>
+                            {!fin && <button style={{
+                                padding: "6px 16px",
+                                background: "#c0392b",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 8,
+                                fontSize: 13,
+                                fontWeight: 700,
+                                cursor: "pointer"
+                            }} onClick={finishT}>Zakończ turniej</button>}
+                            {fin && <button style={{
+                                padding: "6px 16px",
+                                background: T.olive,
+                                color: isDark ? T.dark : "#fff",
+                                border: "none",
+                                borderRadius: 8,
+                                fontSize: 13,
+                                fontWeight: 700,
+                                cursor: "pointer"
+                            }} onClick={newT}>Nowy turniej</button>}
+                        </div>
+                    </div>
+                </div>
+                {fin && rank.length > 0 && <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 16,
+                    padding: "24px 20px",
+                    background: T.winGrad,
+                    borderBottom: "1px solid " + T.border
+                }}>
+                    <div style={{fontSize: 48}}>🏆</div>
+                    <div>
+                        <div style={{
+                            fontSize: 12,
+                            color: T.olive,
+                            textTransform: "uppercase",
+                            letterSpacing: 2,
+                            fontWeight: 700
+                        }}>Zwycięzca
+                        </div>
+                        <div style={{fontSize: 28, fontWeight: 800, margin: "2px 0"}}>{rank[0].name}</div>
+                        <div style={{fontSize: 16, color: T.dim}}>{rank[0].points} pkt •
+                            Z-R-P {rank[0].stats.w}-{rank[0].stats.d}-{rank[0].stats.l}</div>
+                    </div>
+                </div>}
+                <div className="main-grid" style={{
+                    maxWidth: 1200,
+                    margin: "0 auto",
+                    padding: 20,
+                    display: "grid",
+                    gridTemplateColumns: "340px 1fr",
+                    gap: 20,
+                    alignItems: "start"
+                }}>
+                    <div style={{
+                        background: T.mid,
+                        borderRadius: 12,
+                        border: "1px solid " + T.border,
+                        overflow: "hidden"
+                    }}>
+                        <h2 style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: T.dim,
+                            textTransform: "uppercase",
+                            letterSpacing: 2,
+                            padding: "14px 16px",
+                            margin: 0,
+                            borderBottom: "1px solid " + T.border
+                        }}>Ranking</h2>
+                        <div>
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "8px 16px",
+                                borderBottom: "1px solid " + T.border,
+                                fontSize: 10,
+                                color: T.dim,
+                                textTransform: "uppercase",
+                                letterSpacing: 1.5
+                            }}><span style={{width: 32, textAlign: "center"}}>#</span><span
+                                style={{flex: 1}}>Gracz</span><span
+                                style={{width: 70, textAlign: "center"}}>Z-R-P</span><span
+                                style={{width: 48, textAlign: "right"}}>Pkt</span></div>
+                            {rank.map((p, i) => <div key={p.id} style={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "10px 16px",
+                                borderBottom: "1px solid " + T.border, ...(i === 0 && fin ? {background: "rgba(212,168,67,0.1)"} : i === 1 && fin ? {background: "rgba(148,163,184,0.06)"} : i === 2 && fin ? {background: "rgba(192,138,69,0.06)"} : {})
+                            }}>
+                                <span style={{
+                                    width: 32,
+                                    textAlign: "center",
+                                    fontSize: 15,
+                                    fontWeight: 700
+                                }}>{i === 0 && fin ? "🥇" : i === 1 && fin ? "🥈" : i === 2 && fin ? "🥉" : i + 1}</span>
+                                <span style={{flex: 1, fontSize: 14, fontWeight: 600}}>{p.name}</span>
+                                <span style={{
+                                    width: 70,
+                                    textAlign: "center",
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    fontVariantNumeric: "tabular-nums"
+                                }}><span style={{color: T.wdlWin}}>{p.stats.w}</span>-<span
+                                    style={{color: T.wdlDraw}}>{p.stats.d}</span>-<span
+                                    style={{color: T.wdlLose}}>{p.stats.l}</span></span>
+                                <span style={{
+                                    width: 48,
+                                    textAlign: "right",
+                                    fontSize: 16,
+                                    fontWeight: 800,
+                                    fontVariantNumeric: "tabular-nums",
+                                    color: T.olive
+                                }}>{p.points}</span>
+                            </div>)}
+                        </div>
+                    </div>
+                    <div style={{
+                        background: T.mid,
+                        borderRadius: 12,
+                        border: "1px solid " + T.border,
+                        overflow: "hidden"
+                    }}>
+                        <h2 style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: T.dim,
+                            textTransform: "uppercase",
+                            letterSpacing: 2,
+                            padding: "14px 16px",
+                            margin: 0,
+                            borderBottom: "1px solid " + T.border
+                        }}>Rundy</h2>
+                        <div style={{
+                            padding: 16,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 16,
+                            maxHeight: "calc(100vh - 140px)",
+                            overflowY: "auto"
+                        }}>
+                            {tournament.rounds.map((rd, ri) => <div key={rd.id} style={{
+                                background: T.card,
+                                borderRadius: 10,
+                                border: "1px solid " + (ri === tournament.currentRound && !fin && !rd.completed ? T.olive : T.border),
+                                padding: 14,
+                                opacity: rd.completed ? 0.7 : 1
+                            }}>
+                                <div style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    marginBottom: 10
+                                }}>
+                                    <span style={{fontSize: 15, fontWeight: 700}}>Runda {rd.number}</span>
+                                    {rd.completed && <span style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 4,
+                                        fontSize: 12,
+                                        color: T.olive,
+                                        fontWeight: 600
+                                    }}><IconCheck/> Ukończona</span>}
+                                    {ri === tournament.currentRound && !rd.completed && !fin && <span style={{
+                                        fontSize: 12,
+                                        color: isDark ? T.dark : "#fff",
+                                        fontWeight: 700,
+                                        background: T.olive,
+                                        padding: "2px 10px",
+                                        borderRadius: 8
+                                    }}>Trwa</span>}
+                                </div>
+                                {rd.matches.map((m, mi) => {
+                                    const cc = !fin;
+                                    const ts = (w, l) => ({
+                                        flex: 1,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        padding: "10px 12px",
+                                        borderRadius: 8,
+                                        border: "1px solid " + T.border,
+                                        background: T.card,
+                                        transition: "all 0.15s", ...(cc ? {cursor: "pointer"} : {}), ...(m.completed ? (w ? {
+                                            borderColor: T.teamWinBorder,
+                                            background: T.teamWinBg
+                                        } : l ? {
+                                            borderColor: T.teamLoseBorder,
+                                            background: T.teamLoseBg
+                                        } : {borderColor: T.teamDrawBorder, background: T.teamDrawBg}) : {}),
+                                    });
+                                    return <div key={m.id} style={{
+                                        background: T.mid,
+                                        borderRadius: 8,
+                                        padding: 12,
+                                        marginBottom: 8,
+                                        border: "1px solid " + T.border
+                                    }}>
+                                        <div style={{
+                                            fontSize: 11,
+                                            color: T.dim,
+                                            textTransform: "uppercase",
+                                            letterSpacing: 1,
+                                            marginBottom: 8,
+                                            fontWeight: 700
+                                        }}>{m.court.name}</div>
+                                        <div style={{display: "flex", alignItems: "stretch", gap: 8}}>
+                                            <div className={cc ? "team-click" : ""}
+                                                 style={ts(m.score1 > m.score2, m.score1 < m.score2)}
+                                                 onClick={() => cc && openM(ri, mi, 1)}><span style={{
+                                                fontSize: 13,
+                                                fontWeight: 600
+                                            }}>{m.team1.map(p => p.name).join(" & ")}</span>{m.completed && <span
+                                                style={{
+                                                    fontSize: 20,
+                                                    fontWeight: 800,
+                                                    fontVariantNumeric: "tabular-nums",
+                                                    color: T.olive,
+                                                    marginLeft: 8
+                                                }}>{m.score1}</span>}</div>
+                                            <span style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                fontSize: 11,
+                                                color: T.dim,
+                                                fontWeight: 700
+                                            }}>vs</span>
+                                            <div className={cc ? "team-click" : ""}
+                                                 style={ts(m.score2 > m.score1, m.score2 < m.score1)}
+                                                 onClick={() => cc && openM(ri, mi, 2)}><span style={{
+                                                fontSize: 13,
+                                                fontWeight: 600
+                                            }}>{m.team2.map(p => p.name).join(" & ")}</span>{m.completed && <span
+                                                style={{
+                                                    fontSize: 20,
+                                                    fontWeight: 800,
+                                                    fontVariantNumeric: "tabular-nums",
+                                                    color: T.olive,
+                                                    marginLeft: 8
+                                                }}>{m.score2}</span>}</div>
+                                        </div>
+                                        {!m.completed && !fin && <div style={{
+                                            fontSize: 11,
+                                            color: T.dim,
+                                            textAlign: "center",
+                                            marginTop: 6,
+                                            fontStyle: "italic"
+                                        }}>Kliknij parę, aby podać wynik</div>}
+                                    </div>
+                                })}
+                                {rd.byePlayers.length > 0 && <div style={{
+                                    marginTop: 8,
+                                    padding: "8px 12px",
+                                    background: T.byeBg,
+                                    borderRadius: 6,
+                                    fontSize: 13,
+                                    color: T.dim,
+                                    border: "1px dashed " + T.byeBorder
+                                }}>Pauza: {rd.byePlayers.map(p => p.name).join(", ")}{tournament.byePoints > 0 &&
+                                    <span style={{opacity: 0.6}}> (+{tournament.byePoints} pkt)</span>}</div>}
+                            </div>)}
+                        </div>
+                    </div>
+                </div>
+            </div>);
+        }
+        return null;
+    }
+
+    ReactDOM.render(React.createElement(App), document.getElementById("root"));
 </script>
 </body>
 </html>
